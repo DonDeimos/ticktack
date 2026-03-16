@@ -1,0 +1,439 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2685.4">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  </style>
+</head>
+<body>
+<p class="p1">&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html lang="de"&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;meta charset="UTF-8" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;meta name="apple-mobile-web-app-capable" content="yes" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;meta name="apple-mobile-web-app-status-bar-style" content="default" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;meta name="apple-mobile-web-app-title" content="Tick Tack" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;title&gt;Tick Tack – Uhrzeit lernen&lt;/title&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;script src="https://unpkg.com/react@18/umd/react.production.min.js"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;script src="https://unpkg.com/@babel/standalone/babel.min.js"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;style&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>* { box-sizing: border-box; margin: 0; padding: 0; }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #fff; }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>input { font-family: inherit; outline: none; }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>button { font-family: inherit; outline: none; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/style&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p1">&lt;body&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div id="root"&gt;&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;script type="text/babel"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const { useState, useRef, useEffect, useCallback } = React;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>const MODI = { de: ["Erkunden", "Ablesen", "Quiz"], en: ["Explore", "Read", "Quiz"] };</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>const T = {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>de: {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>title: "Tick Tack", sub: "Uhrzeit lernen",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>dragHint: "Zeiger ziehen!",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>exploreHint: "Ziehe die Zeiger und sieh, wie sich die Uhrzeit ändert!",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>vormittag: "Vormittag (0–11)", nachmittag: "Nachmittag (12–23)",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>vormLabel: "Vormittag", nachLabel: "Nachmittag",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>readHint: "Wie spät ist es? Gib die Uhrzeit ein (z.B. 3:00)",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>round: "Runde", points: "Punkte",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>correct: "🎉 Super! Richtig!", wrong: (t) =&gt; "❌ Fast! Es war " + t + " Uhr",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>next: "Weiter →",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>quizQ1: "Welche Uhrzeit zeigt die Uhr?",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>quizQ2pre: "Welche Uhr zeigt",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>quizRight: "🌟 Toll gemacht!", quizWrong: (t) =&gt; "❌ Die Antwort war " + t,</p>
+<p class="p1"><span class="Apple-converted-space">        </span>nextQ: "Nächste Frage →", placeholder: "z.B. 3:00",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>timeText: (h, m) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const h12 = h % 12 === 0 ? 12 : h % 12;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const next = (h12 % 12) + 1;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>if (m === 0) return h12 + " Uhr";</p>
+<p class="p1"><span class="Apple-converted-space">          </span>if (m === 30) return "halb " + next;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>if (m === 15) return "Viertel nach " + h12;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>if (m === 45) return "Viertel vor " + next;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>return m + " Minuten nach " + h12;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">      </span>},</p>
+<p class="p1"><span class="Apple-converted-space">      </span>en: {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>title: "Tick Tock", sub: "Learn to tell the time",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>dragHint: "Drag the hands!",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>exploreHint: "Drag the clock hands and watch the time change!",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>vormittag: "Morning (12–11 AM)", nachmittag: "Afternoon (12–11 PM)",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>vormLabel: "AM", nachLabel: "PM",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>readHint: "What time is it? Type the time (e.g. 3:00)",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>round: "Round", points: "Points",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>correct: "🎉 Great! Correct!", wrong: (t) =&gt; "❌ Almost! It was " + t,</p>
+<p class="p1"><span class="Apple-converted-space">        </span>next: "Next →",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>quizQ1: "What time does the clock show?",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>quizQ2pre: "Which clock shows",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>quizRight: "🌟 Well done!", quizWrong: (t) =&gt; "❌ The answer was " + t,</p>
+<p class="p1"><span class="Apple-converted-space">        </span>nextQ: "Next question →", placeholder: "e.g. 3:00",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>timeText: (h, m) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const h12 = h % 12 === 0 ? 12 : h % 12;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const next = (h12 % 12) + 1;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>if (m === 0) return h12 + " o'clock";</p>
+<p class="p1"><span class="Apple-converted-space">          </span>if (m === 30) return "half past " + h12;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>if (m === 15) return "quarter past " + h12;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>if (m === 45) return "quarter to " + next;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>return m + " minutes past " + h12;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function pad(n) { return String(n).padStart(2, "0"); }</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function AnalogeUhr({ stunde, minute, onMinuteDrag, onStundeDrag, interactive, dragHint, show24 }) {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const svgRef = useRef(null);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const dragging = useRef(null);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const lastAngle = useRef(null);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const cx = 120, cy = 120, r = 100;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const minAngle = (minute / 60) * 360 - 90;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const stdAngle = ((stunde % 12 + minute / 60) / 12) * 360 - 90;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const minRad = (minAngle * Math.PI) / 180;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const stdRad = (stdAngle * Math.PI) / 180;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>const getSVGAngle = (e) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const rect = svgRef.current.getBoundingClientRect();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const scale = 240 / rect.width;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const clientX = e.touches ? e.touches[0].clientX : e.clientX;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const clientY = e.touches ? e.touches[0].clientY : e.clientY;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>return Math.atan2((clientY - rect.top) * scale - cy, (clientX - rect.left) * scale - cx);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>const onPointerDown = (type) =&gt; (e) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (!interactive) return;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>dragging.current = type;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>lastAngle.current = getSVGAngle(e);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>e.preventDefault();</p>
+<p class="p1"><span class="Apple-converted-space">      </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>const onPointerMove = useCallback((e) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (!dragging.current || !svgRef.current) return;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const angle = getSVGAngle(e);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let delta = angle - lastAngle.current;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (delta &gt; Math.PI) delta -= 2 * Math.PI;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (delta &lt; -Math.PI) delta += 2 * Math.PI;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>lastAngle.current = angle;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const deg = (delta * 180) / Math.PI;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (dragging.current === "minute") onMinuteDrag(deg);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>else onStundeDrag(deg);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}, [onMinuteDrag, onStundeDrag]);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>const onPointerUp = useCallback(() =&gt; { dragging.current = null; lastAngle.current = null; }, []);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>useEffect(() =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>window.addEventListener("mousemove", onPointerMove);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>window.addEventListener("mouseup", onPointerUp);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>window.addEventListener("touchmove", onPointerMove, { passive: false });</p>
+<p class="p1"><span class="Apple-converted-space">        </span>window.addEventListener("touchend", onPointerUp);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>return () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>window.removeEventListener("mousemove", onPointerMove);</p>
+<p class="p1"><span class="Apple-converted-space">          </span>window.removeEventListener("mouseup", onPointerUp);</p>
+<p class="p1"><span class="Apple-converted-space">          </span>window.removeEventListener("touchmove", onPointerMove);</p>
+<p class="p1"><span class="Apple-converted-space">          </span>window.removeEventListener("touchend", onPointerUp);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>};</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}, [onPointerMove, onPointerUp]);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>const zahlen = [];</p>
+<p class="p1"><span class="Apple-converted-space">      </span>for (let i = 1; i &lt;= 12; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const a = ((i / 12) * 2 * Math.PI) - Math.PI / 2;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>zahlen.push({ i, x: cx + 80 * Math.cos(a), y: cy + 80 * Math.sin(a) });</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const zahlen24 = [];</p>
+<p class="p1"><span class="Apple-converted-space">      </span>if (show24) {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>for (let i = 1; i &lt;= 12; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const a = ((i / 12) * 2 * Math.PI) - Math.PI / 2;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const v = i + 12 === 24 ? 0 : i + 12;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>zahlen24.push({ i: v, x: cx + 62 * Math.cos(a), y: cy + 62 * Math.sin(a) });</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const striche = [];</p>
+<p class="p1"><span class="Apple-converted-space">      </span>for (let i = 0; i &lt; 60; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const a = (i / 60) * 2 * Math.PI - Math.PI / 2;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const inner = i % 5 === 0 ? 88 : 94;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>striche.push({ x1: cx + inner * Math.cos(a), y1: cy + inner * Math.sin(a), x2: cx + r * Math.cos(a), y2: cy + r * Math.sin(a), bold: i % 5 === 0 });</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>return (</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div style={{ textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center" }}&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;svg ref={svgRef} viewBox="0 0 240 240" style={{ width: "100%", maxWidth: 260, cursor: interactive ? "pointer" : "default", userSelect: "none" }}&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;circle cx={cx} cy={cy} r={r} fill="#fff9f0" stroke="#e8a825" strokeWidth="3" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>{striche.map((s, i) =&gt; (</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;line key={i} x1={s.x1} y1={s.y1} x2={s.x2} y2={s.y2} stroke="#c97a10" strokeWidth={s.bold ? 2 : 1} strokeLinecap="round" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>))}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>{zahlen.map(z =&gt; (</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;text key={z.i} x={z.x} y={z.y} textAnchor="middle" dominantBaseline="central" fontSize="14" fontWeight="500" fill="#5a3e0a"&gt;{z.i}&lt;/text&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>))}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>{zahlen24.map(z =&gt; (</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;text key={"24-" + z.i} x={z.x} y={z.y} textAnchor="middle" dominantBaseline="central" fontSize="9" fontWeight="400" fill="#c97a10"&gt;{z.i}&lt;/text&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>))}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;line x1={cx} y1={cy} x2={cx + 55 * Math.cos(stdRad)} y2={cy + 55 * Math.sin(stdRad)} stroke="#3d2a08" strokeWidth="6" strokeLinecap="round" onMouseDown={onPointerDown("stunde")} onTouchStart={onPointerDown("stunde")} /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;line x1={cx} y1={cy} x2={cx + 75 * Math.cos(minRad)} y2={cy + 75 * Math.sin(minRad)} stroke="#c97a10" strokeWidth="4" strokeLinecap="round" onMouseDown={onPointerDown("minute")} onTouchStart={onPointerDown("minute")} /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;circle cx={cx} cy={cy} r="6" fill="#5a3e0a" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>{interactive &amp;&amp; (</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p style={{ fontSize: 11, color: "#c97a10", margin: "2px 0 0", textAlign: "center" }}&gt;{dragHint}&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>)}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function DigitaleUhr({ stunde, minute }) {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>return (</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div style={{ background: "#1a1a2e", color: "#ffd700", borderRadius: 12, padding: "10px 28px", fontSize: 38, fontWeight: 500, fontFamily: "monospace", letterSpacing: 4, textAlign: "center", display: "inline-block" }}&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>{pad(stunde)}:{pad(minute)}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function zufaelligeUhrzeit() {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>return { h: Math.floor(Math.random() * 12) + 1, m: Math.floor(Math.random() * 12) * 5 };</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function ErkundenModus({ lang }) {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const t = T[lang];</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const [stunde, setStunde] = useState(3);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const [minute, setMinute] = useState(0);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const minuteAcc = useRef(0);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const stundeAcc = useRef(0);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const isNachmittag = stunde &gt;= 12;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>const handleMinuteDrag = useCallback((deg) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>minuteAcc.current += deg;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const steps = Math.trunc(minuteAcc.current / 6);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (steps !== 0) {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>minuteAcc.current -= steps * 6;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>setMinute(m =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>let nm = m + steps;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (nm &gt;= 60) { nm = nm % 60; setStunde(h =&gt; Math.min(23, h + 1)); }</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (nm &lt; 0) { nm = ((nm % 60) + 60) % 60; setStunde(h =&gt; Math.max(0, h - 1)); }</p>
+<p class="p1"><span class="Apple-converted-space">            </span>return nm;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>});</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}, []);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>const handleStundeDrag = useCallback((deg) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>stundeAcc.current += deg;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const steps = Math.trunc(stundeAcc.current / 30);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (steps !== 0) {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>stundeAcc.current -= steps * 30;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>setStunde(h =&gt; Math.min(23, Math.max(0, h + steps)));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}, []);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>const toggle = () =&gt; setStunde(h =&gt; h &gt;= 12 ? h - 12 : h + 12);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>return (</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div style={{ textAlign: "center" }}&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;p style={{ color: "#888", fontSize: 14, margin: "0 0 8px", textAlign: "center" }}&gt;{t.exploreHint}&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div style={{ display: "flex", justifyContent: "center", gap: 8, marginBottom: 10 }}&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>{[false, true].map((pm, i) =&gt; (</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;button key={i} onClick={() =&gt; (pm !== isNachmittag) &amp;&amp; toggle()}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>style={{ padding: "5px 14px", borderRadius: 20, border: "2px solid #e8a825", fontSize: 12, fontWeight: 500, cursor: "pointer", background: isNachmittag === pm ? "#f5a623" : "#fff9f0", color: isNachmittag === pm ? "#fff" : "#7a5a20" }}&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>{pm ? t.nachmittag : t.vormittag}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>))}</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;AnalogeUhr stunde={stunde} minute={minute} onMinuteDrag={handleMinuteDrag} onStundeDrag={handleStundeDrag} interactive={true} dragHint={t.dragHint} show24={lang === "de"} /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div style={{ margin: "10px 0 8px" }}&gt;&lt;DigitaleUhr stunde={stunde} minute={minute} /&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div style={{ margin: "6px auto 0", background: "#fef3d0", borderRadius: 10, padding: "8px 20px", display: "inline-block", fontSize: 18, color: "#7a4f00", fontWeight: 500 }}&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>{t.timeText(stunde, minute)} · {isNachmittag ? t.nachLabel : t.vormLabel}</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function AblesenModus({ lang }) {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const t = T[lang];</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const [uhr, setUhr] = useState(zufaelligeUhrzeit);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const [eingabe, setEingabe] = useState("");</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const [status, setStatus] = useState(null);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const [punkte, setPunkte] = useState(0);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const [runde, setRunde] = useState(1);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>const pruefen = () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const v = eingabe.trim().replace(/\s+/g, "");</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const r1 = pad(uhr.h) + ":" + pad(uhr.m);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const r2 = uhr.h + ":" + pad(uhr.m);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const ok = v === r1 || v === r2 || v === r1.replace(":", "") || v === (uhr.h + pad(uhr.m));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>setStatus(ok ? "richtig" : "falsch");</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (ok) setPunkte(p =&gt; p + 1);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>const naechste = () =&gt; { setUhr(zufaelligeUhrzeit()); setEingabe(""); setStatus(null); setRunde(r =&gt; r + 1); };</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>return (</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div style={{ textAlign: "center" }}&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8, fontSize: 13, color: "#888" }}&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;span&gt;{t.round} {runde}&lt;/span&gt;&lt;span&gt;{t.points}: {punkte} ⭐&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;p style={{ color: "#888", fontSize: 14, margin: "0 0 8px", textAlign: "center" }}&gt;{t.readHint}&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;AnalogeUhr stunde={uhr.h} minute={uhr.m} onMinuteDrag={() =&gt; {}} onStundeDrag={() =&gt; {}} interactive={false} dragHint="" show24={false} /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>{status === null ? (</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div style={{ display: "flex", gap: 8, justifyContent: "center", margin: "10px 0" }}&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;input value={eingabe} onChange={e =&gt; setEingabe(e.target.value)} onKeyDown={e =&gt; e.key === "Enter" &amp;&amp; eingabe &amp;&amp; pruefen()} placeholder={t.placeholder}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>style={{ fontSize: 20, padding: "6px 14px", borderRadius: 10, border: "2px solid #e8a825", width: 110, textAlign: "center" }} /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;button onClick={pruefen} disabled={!eingabe} style={{ background: "#f5a623", color: "#fff", border: "none", borderRadius: 10, padding: "6px 18px", fontSize: 18, cursor: "pointer", fontWeight: 500 }}&gt;✓&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>) : (</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div style={{ margin: "10px 0" }}&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div style={{ background: status === "richtig" ? "#e8f5e9" : "#fdecea", color: status === "richtig" ? "#2e7d32" : "#c62828", borderRadius: 10, padding: "10px 20px", fontSize: 18, fontWeight: 500, marginBottom: 10 }}&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>{status === "richtig" ? t.correct : t.wrong(pad(uhr.h) + ":" + pad(uhr.m))}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;button onClick={naechste} style={{ background: "#f5a623", color: "#fff", border: "none", borderRadius: 10, padding: "8px 24px", fontSize: 16, cursor: "pointer", fontWeight: 500 }}&gt;{t.next}&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>)}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function QuizModus({ lang }) {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const t = T[lang];</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>const genFrage = () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const richtig = zufaelligeUhrzeit();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const falschen = [];</p>
+<p class="p1"><span class="Apple-converted-space">        </span>while (falschen.length &lt; 3) {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const f = zufaelligeUhrzeit();</p>
+<p class="p1"><span class="Apple-converted-space">          </span>if (!falschen.find(x =&gt; x.h === f.h &amp;&amp; x.m === f.m) &amp;&amp; !(f.h === richtig.h &amp;&amp; f.m === richtig.m)) falschen.push(f);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>return { richtig, optionen: [richtig, ...falschen].sort(() =&gt; Math.random() - 0.5) };</p>
+<p class="p1"><span class="Apple-converted-space">      </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>const [frage, setFrage] = useState(genFrage);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const [gewaehlt, setGewaehlt] = useState(null);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const [punkte, setPunkte] = useState(0);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const [runde, setRunde] = useState(1);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const [sterne, setSterne] = useState(0);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>const waehlen = (opt) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (gewaehlt) return;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>setGewaehlt(opt);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const ok = opt.h === frage.richtig.h &amp;&amp; opt.m === frage.richtig.m;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (ok) { setPunkte(p =&gt; p + 1); setSterne(s =&gt; Math.min(3, s + 1)); } else setSterne(s =&gt; Math.max(0, s - 1));</p>
+<p class="p1"><span class="Apple-converted-space">      </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>const naechste = () =&gt; { setFrage(genFrage()); setGewaehlt(null); setRunde(r =&gt; r + 1); };</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const isRight = gewaehlt &amp;&amp; gewaehlt.h === frage.richtig.h &amp;&amp; gewaehlt.m === frage.richtig.m;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const richtigStr = pad(frage.richtig.h) + ":" + pad(frage.richtig.m);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>return (</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div style={{ textAlign: "center" }}&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8, fontSize: 13, color: "#888" }}&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;span&gt;{t.round} {runde}&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>{Array.from({ length: 3 }).map((_, i) =&gt; (</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;span key={i} style={{ color: i &lt; sterne ? "#f5a623" : "#ddd" }}&gt;★&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>))}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>{" "}{punkte} {t.points}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>{runde % 2 === 0 ? (</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;p style={{ color: "#888", fontSize: 14, margin: "0 0 6px" }}&gt;{t.quizQ1}&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;AnalogeUhr stunde={frage.richtig.h} minute={frage.richtig.m} onMinuteDrag={() =&gt; {}} onStundeDrag={() =&gt; {}} interactive={false} dragHint="" show24={false} /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginTop: 10 }}&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>{frage.optionen.map((opt, i) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>const ir = opt.h === frage.richtig.h &amp;&amp; opt.m === frage.richtig.m;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>const gd = gewaehlt &amp;&amp; gewaehlt.h === opt.h &amp;&amp; gewaehlt.m === opt.m;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>let bg = "#fff9f0", border = "2px solid #e8a825", color = "#5a3e0a";</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>if (gewaehlt) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>if (ir) { bg = "#e8f5e9"; border = "2px solid #4caf50"; color = "#2e7d32"; }</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>else if (gd) { bg = "#fdecea"; border = "2px solid #f44336"; color = "#c62828"; }</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>else { bg = "#f5f5f5"; color = "#aaa"; border = "2px solid #ddd"; }</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>return (</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;button key={i} onClick={() =&gt; waehlen(opt)} style={{ background: bg, border, color, borderRadius: 12, padding: "12px 0", fontSize: 18, fontWeight: 500, cursor: gewaehlt ? "default" : "pointer", fontFamily: "monospace" }}&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>{pad(opt.h)}:{pad(opt.m)}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>})}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>) : (</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;p style={{ color: "#888", fontSize: 14, margin: "0 0 8px" }}&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>{t.quizQ2pre}{" "}&lt;span style={{ color: "#c97a10", fontWeight: 500, fontSize: 18 }}&gt;{richtigStr}&lt;/span&gt;?</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>{frage.optionen.map((opt, i) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>const ir = opt.h === frage.richtig.h &amp;&amp; opt.m === frage.richtig.m;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>const gd = gewaehlt &amp;&amp; gewaehlt.h === opt.h &amp;&amp; gewaehlt.m === opt.m;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>let border = "2px solid #e8a825", bg = "#fff9f0";</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>if (gewaehlt) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>if (ir) { bg = "#e8f5e9"; border = "2px solid #4caf50"; }</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>else if (gd) { bg = "#fdecea"; border = "2px solid #f44336"; }</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>else { bg = "#f5f5f5"; border = "2px solid #ddd"; }</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>return (</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div key={i} onClick={() =&gt; waehlen(opt)} style={{ background: bg, border, borderRadius: 12, padding: 6, cursor: gewaehlt ? "default" : "pointer", display: "flex", justifyContent: "center" }}&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;AnalogeUhr stunde={opt.h} minute={opt.m} onMinuteDrag={() =&gt; {}} onStundeDrag={() =&gt; {}} interactive={false} dragHint="" show24={false} /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>})}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>)}</p>
+<p class="p1"><span class="Apple-converted-space">          </span>{gewaehlt &amp;&amp; (</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div style={{ marginTop: 10 }}&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div style={{ background: isRight ? "#e8f5e9" : "#fdecea", color: isRight ? "#2e7d32" : "#c62828", borderRadius: 10, padding: "8px 20px", fontSize: 17, fontWeight: 500, marginBottom: 10 }}&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>{isRight ? t.quizRight : t.quizWrong(richtigStr)}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;button onClick={naechste} style={{ background: "#f5a623", color: "#fff", border: "none", borderRadius: 10, padding: "8px 24px", fontSize: 16, cursor: "pointer", fontWeight: 500 }}&gt;{t.nextQ}&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>)}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function App() {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const [lang, setLang] = useState("de");</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const [modus, setModus] = useState(0);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const t = T[lang];</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>return (</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div style={{ maxWidth: 380, margin: "0 auto", padding: "16px 12px", fontFamily: "-apple-system, sans-serif", textAlign: "center" }}&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 8 }}&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>{["de", "en"].map(l =&gt; (</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;button key={l} onClick={() =&gt; { setLang(l); setModus(0); }}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>style={{ padding: "4px 12px", borderRadius: 20, border: "2px solid #e8a825", fontSize: 12, fontWeight: 500, cursor: "pointer", marginLeft: 6, background: lang === l ? "#f5a623" : "#fff9f0", color: lang === l ? "#fff" : "#7a5a20" }}&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>{l === "de" ? "🇩🇪 DE" : "🇬🇧 EN"}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>))}</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div style={{ textAlign: "center", marginBottom: 16 }}&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div style={{ fontSize: 28, fontWeight: 500, color: "#c97a10" }}&gt;🕐 {t.title}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div style={{ fontSize: 13, color: "#888" }}&gt;{t.sub}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div style={{ display: "flex", gap: 6, marginBottom: 18, background: "#f5f0e8", borderRadius: 12, padding: 4 }}&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>{MODI[lang].map((m, i) =&gt; (</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;button key={i} onClick={() =&gt; setModus(i)}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>style={{ flex: 1, border: "none", borderRadius: 9, padding: "7px 0", fontSize: 13, fontWeight: 500, cursor: "pointer", background: modus === i ? "#f5a623" : "transparent", color: modus === i ? "#fff" : "#7a5a20" }}&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>{m}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>))}</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>{modus === 0 &amp;&amp; &lt;ErkundenModus lang={lang} key={lang + "e"} /&gt;}</p>
+<p class="p1"><span class="Apple-converted-space">          </span>{modus === 1 &amp;&amp; &lt;AblesenModus lang={lang} key={lang + "a"} /&gt;}</p>
+<p class="p1"><span class="Apple-converted-space">          </span>{modus === 2 &amp;&amp; &lt;QuizModus lang={lang} key={lang + "q"} /&gt;}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>const root = ReactDOM.createRoot(document.getElementById("root"));</p>
+<p class="p1"><span class="Apple-converted-space">    </span>root.render(&lt;App /&gt;);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/script&gt;</p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
+</body>
+</html>
